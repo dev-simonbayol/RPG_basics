@@ -10,6 +10,7 @@ class PlayerClass:
         self.x = x
         self.y = y
         self.hitbox = 0
+        self.colhitbox = None
         self.hp = 100
 
         # Player movement attributes
@@ -61,6 +62,7 @@ class PlayerClass:
 
     def update_hitbox(self):
         self.hitbox = pygame.Rect(self.x - self.offsetx / 4.3, self.y - self.current_sprite.get_height() / 1.7, self.offsetx / 2, self.offsety / 1.6)
+        self.colhitbox = pygame.Rect(self.x - self.offsetx / 14, self.y - self.current_sprite.get_height() / 14, self.offsetx / 5, self.offsety / 12)
 
     # Function to manage the player's movement
     def moving(self, time):
@@ -213,6 +215,7 @@ def init_warrior(screen):
     warrior.offsetx = 128 * size_ratio
     warrior.offsety = 128 * size_ratio
     warrior.hitbox = pygame.Rect(warrior.x - warrior.offsetx / 4.3, warrior.y - warrior.current_sprite.get_height() / 1.7, warrior.offsetx / 2, warrior.offsety / 1.6)
+    warrior.colhitbox = pygame.Rect(warrior.x - warrior.offsetx / 14, warrior.y - warrior.current_sprite.get_height() / 14, warrior.offsetx / 5, warrior.offsety / 12)
     warrior.selected_sprite = selection_sprite[0]
     warrior.selected_sprite_offsetx = 2644/21
     warrior.selected_sprite_offsety = 60

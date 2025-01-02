@@ -50,6 +50,8 @@ def generate_tree_positions(screen, sprites, ratio):
         new_tree.shadow = sprites[0] #attribute shadow to the tree
         new_tree.shadow_x = x - sprite.get_width() / 6
         new_tree.shadow_y = y - sprite.get_height() / 2
+        new_tree.col_hitbox = pygame.Rect(x + sprite.get_width() / 5, y - new_tree.sprite.get_height() / 4, sprite.get_width() / 3, sprite.get_height() / 3)
+        new_tree.hitbox = pygame.Rect(x + 10, y - new_tree.sprite.get_height(), new_tree.sprite.get_width() - 20, new_tree.sprite.get_height())
         trees.append(new_tree)
     return trees
 
@@ -63,6 +65,7 @@ def generate_bush_positions(screen, sprites, count):
         x = random.randint(0, screen.get_width() - sprite.get_width())
         y = random.randint(0, screen.get_height() - sprite.get_height())
         new_bush = MapObject(sprite, x, y, 50, "bush")
+        new_bush.hitbox = pygame.Rect(x, y - sprite.get_height(), sprite.get_width(), sprite.get_height())
         bushes.append(new_bush)
     return bushes
 
@@ -75,6 +78,8 @@ def generate_stones_positions(screen, sprites, count):
         x = random.randint(0, screen.get_width() - sprite.get_width())
         y = random.randint(0, screen.get_height() - sprite.get_height())
         new_stone = MapObject(sprite, x, y, 250, "stone")
+        new_stone.col_hitbox = pygame.Rect(x, y - new_stone.sprite.get_height() /2.2, sprite.get_width(), sprite.get_height() / 3)
+        new_stone.hitbox = pygame.Rect(x, y - new_stone.sprite.get_height(), sprite.get_width(), sprite.get_height())
         stones.append(new_stone)
     return stones
 
@@ -110,14 +115,14 @@ def print_shadows(screen, objects_lists):
 
 
 # displaying objects on the screen, from the top to the bottom
-def display_obj(screen, objects_lists, player):
+def display_obj(screen, objects_lists, player, user_interactions):
     n_y = 0
     delta = 5 # precision of the display
     while n_y <= screen.get_height():
         for objects in objects_lists:
             for object in objects:
                 if object.y >= n_y - object.display_priority and object.y < n_y + delta:
-                    screen.blit(object.sprite, (object.x, object.y - object.sprite.get_height()))
+                    object.display(screen, user_interactions)
         if player.y >= n_y and player.y < n_y + delta:
             player.display(screen)
         n_y += delta
@@ -134,7 +139,8 @@ def display_selection_area(screen, user_interactions, player):
         screen.blit(user_interactions.drawable_area, (user_interactions.area.x, user_interactions.area.y))
         pygame.draw.rect(screen, (0, 195, 0), user_interactions.area, 2)
     if user_interactions.draw_invisible_area:
-        pygame.draw.rect(screen, (195, 0, 0), player.hitbox, 1)
+        pygame.draw.rect(screen, (255, 0, 0), player.hitbox, 1)
+        pygame.draw.rect(screen, (0, 0, 255), player.colhitbox, 1)
 
 # main function to print the map on the screen
 def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_list, user_interactions):
@@ -143,6 +149,6 @@ def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_l
     print_grass(screen, generatted_map_bg[0])
     print_detailed_grass(screen, generatted_map_bg[1])
     print_shadows(screen, generated_map_obj)
-    display_obj(screen, generated_map_obj, player)
+    display_obj(screen, generated_map_obj, player, user_interactions)
     display_animations(screen, animations_list, player)
     display_selection_area(screen, user_interactions, player)
