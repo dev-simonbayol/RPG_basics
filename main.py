@@ -77,7 +77,7 @@ while running[0]:
     # get keys input from player
     manage_keys_input(clock, running, player, animations_list, user_interactions, events, generated_map_obj)
     print_map(screen, generated_map_bg, generated_map_obj, player, animations_list, user_interactions)
-    moving_managment(clock, player)
+    moving_managment(clock, player, generated_map_obj)
     animation_managment(clock, player, animations_list)
     # Update the display
     pygame.display.flip()

@@ -22,6 +22,8 @@ class PlayerClass:
         self.b = 0
         self.speed = 5
         self.running_time = 0
+        self.old_x = x
+        self.old_y = y
     
         # Player sprite attributes
         self.current_sprite = None
@@ -67,6 +69,8 @@ class PlayerClass:
     # Function to manage the player's movement
     def moving(self, time):
         if self.running_time > 5: # speed (time) of the player movement action
+            self.old_x = self.x
+            self.old_y = self.y
             if self.x < self.dx: # if the player is on the left side of the destination
                 if self.x + self.x_speed > self.dx:
                     self.x = self.dx
