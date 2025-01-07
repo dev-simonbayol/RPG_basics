@@ -9,7 +9,10 @@ def load_sprites(folder, size_x, size_y):
     sprites = []
     for filename in os.listdir(folder):
         if filename.endswith('.png'):
-            image = pygame.transform.scale_by(pygame.image.load(os.path.join(folder, filename)), (size_x, size_y))
+            if size_x != 1 or size_y != 1:
+                image = pygame.Surface.convert_alpha(pygame.transform.scale_by(pygame.image.load(os.path.join(folder, filename)), (size_x, size_y)))
+            else :
+                image = pygame.Surface.convert_alpha(pygame.image.load(os.path.join(folder, filename)))
             sprites.append(image)
     return sprites
 
@@ -32,7 +35,7 @@ def generate_flower_positions(screen, sprites, count):
     for _ in range(count):
         sprite = random.choice(sprites)
         x = random.randint(0, screen.get_width() - sprite.get_width())
-        y = random.randint(0, screen.get_height() - sprite.get_height())
+        y = random.randint(sprite.get_height(), screen.get_height() - sprite.get_height())
         flowers.append((sprite, x, y, "flower"))
     return flowers
 
@@ -40,7 +43,8 @@ def generate_flower_positions(screen, sprites, count):
 # generating trees and there shadow from y = 0 to screen_height by a ratio, return a list of trees
 def generate_tree_positions(screen, sprites, ratio):
     trees = []
-    y = 0
+    sprtie_tree = sprites[1]
+    y = sprtie_tree.get_height()
     n = 0
     while y < screen.get_height() - sprites[1].get_height() * 2:
         sprite = sprites[0]
@@ -63,7 +67,7 @@ def generate_bush_positions(screen, sprites, count):
     for _ in range(count):
         sprite = random.choice(sprites)
         x = random.randint(0, screen.get_width() - sprite.get_width())
-        y = random.randint(0, screen.get_height() - sprite.get_height())
+        y = random.randint(sprite.get_height(), screen.get_height())
         new_bush = MapObject(sprite, x, y, 50, "bush")
         new_bush.hitbox = pygame.Rect(x, y - sprite.get_height(), sprite.get_width(), sprite.get_height())
         bushes.append(new_bush)
@@ -76,7 +80,7 @@ def generate_stones_positions(screen, sprites, count):
     for _ in range(count):
         sprite = random.choice(sprites)
         x = random.randint(0, screen.get_width() - sprite.get_width())
-        y = random.randint(0, screen.get_height() - sprite.get_height())
+        y = random.randint(sprite.get_height(), screen.get_height())
         new_stone = MapObject(sprite, x, y, 250, "stone")
         new_stone.col_hitbox = pygame.Rect(x, y - new_stone.sprite.get_height() /2.2, sprite.get_width(), sprite.get_height() / 3)
         new_stone.hitbox = pygame.Rect(x, y - new_stone.sprite.get_height(), sprite.get_width(), sprite.get_height())
@@ -90,7 +94,7 @@ def generate_logs_positions(screen, sprites, count):
     for _ in range(count):
         sprite = random.choice(sprites)
         x = random.randint(0, screen.get_width() - sprite.get_width())
-        y = random.randint(0, screen.get_height() - sprite.get_height())
+        y = random.randint(sprite.get_height(), screen.get_height())
         new_log = MapObject(sprite, x, y, 50, "log")
         logs.append(new_log)
     return logs
@@ -133,17 +137,26 @@ def display_animations(screen, animations_list, player):
         if animation.delay_n >= animation.delay:
             animation.display(screen, player.is_selected)
 
-def display_selection_area(screen, user_interactions, player):
+def display_selection_area(screen, user_interactions, player, font, clock):
     
     if user_interactions.click:
         screen.blit(user_interactions.drawable_area, (user_interactions.area.x, user_interactions.area.y))
         pygame.draw.rect(screen, (0, 195, 0), user_interactions.area, 2)
     if user_interactions.draw_invisible_area:
+        fps = float("{:.2f}".format(clock.get_fps()))
+        text = font.render(f'fps: {fps}', True, (0,0,0))
+        screen.blit(text, (screen.get_width() - text.get_width(), 0))
         pygame.draw.rect(screen, (255, 0, 0), player.hitbox, 1)
         pygame.draw.rect(screen, (0, 0, 255), player.colhitbox, 1)
 
+def display_interface(screen, interface, font, player):
+    
+    screen.blit(interface[0], (0, 0))
+    if player.is_selected:
+        player.draw_selection_interface(screen)
+
 # main function to print the map on the screen
-def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_list, user_interactions):
+def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_list, user_interactions, interface, clock, font):
     fullmap = False
     x, y = 0, 0
     print_grass(screen, generatted_map_bg[0])
@@ -151,4 +164,5 @@ def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_l
     print_shadows(screen, generated_map_obj)
     display_obj(screen, generated_map_obj, player, user_interactions)
     display_animations(screen, animations_list, player)
-    display_selection_area(screen, user_interactions, player)
+    display_selection_area(screen, user_interactions, player, font, clock)
+    display_interface(screen, interface, font, player)

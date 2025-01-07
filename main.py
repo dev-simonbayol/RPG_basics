@@ -22,6 +22,8 @@ pygame.display.set_caption("My Pygame Window")
 # Set up clock
 clock = pygame.time.Clock()
 
+# setup fonts
+font = pygame.font.SysFont("Comic Sans MS", 30, bold=False, italic=False)
 
 # set up images in a list
 map_png_list = []
@@ -37,6 +39,8 @@ map_png_list.append(load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_b
 map_png_list.append(load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\map_village\theme1\2 Objects\4 Stone", 2, 2))
 # logs 5
 map_png_list.append(load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\map_village\theme1\2 Objects\logs", 1, 1))
+# interface loading
+interface = load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\interface", 1, 1)
 
 # Calculate the number of flowers based on the screen size
 screen_area = screen.get_width() * screen.get_height()
@@ -66,7 +70,6 @@ player = init_warrior(screen)
 user_interactions = user_interaction()
 user_interactions.selected_obj.append(player)
 
-
 # Main loop
 running = [True]
 while running[0]:
@@ -76,7 +79,7 @@ while running[0]:
     events = pygame.event.get()
     # get keys input from player
     manage_keys_input(clock, running, player, animations_list, user_interactions, events, generated_map_obj)
-    print_map(screen, generated_map_bg, generated_map_obj, player, animations_list, user_interactions)
+    print_map(screen, generated_map_bg, generated_map_obj, player, animations_list, user_interactions, interface, clock, font)
     moving_managment(clock, player, generated_map_obj)
     animation_managment(clock, player, animations_list)
     # Update the display

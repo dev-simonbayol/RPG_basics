@@ -38,6 +38,7 @@ class PlayerClass:
         self.hurt = None
         self.die = None
         self.state = "idle"
+        self.interface_sprite = None
     
         # Player sprite animation attributes
         self.offsety = 128
@@ -47,6 +48,13 @@ class PlayerClass:
         self.animation_time = 0
         self.animation_speed = 100
         self.facing = "right"
+        self.interface_sprite_n = 0
+        self.interface_sprite_time = 0
+        self.interface_sprite_speed = 0
+        self.interface_sprite_x = 0
+        self.interface_offset_x = 0
+        self.interface_offset_y = 0
+        self.interface_offset_reset = False
 
         # Player display attributes
         self.display_priority = 0
@@ -157,6 +165,7 @@ class PlayerClass:
     def animation (self, time):
         self.animation_time += time
         self.selected_sprite_animation_time += time
+        self.interface_sprite_time += time
 
         if self.animation_time > self.animation_speed: # timer of character animation
             if self.animation_x + self.offsetx < self.current_sprite.get_width():
@@ -171,6 +180,18 @@ class PlayerClass:
             else:
                 self.selected_sprite_x = 0
             self.selected_sprite_animation_time = 0
+        
+        if self.interface_sprite_time > self.interface_sprite_speed :
+            self.interface_sprite_time = 0
+            if self.interface_sprite_x + self.interface_offset_x > self.interface_sprite.get_width() and self.interface_offset_reset == False:
+                self.interface_offset_reset = not self.interface_offset_reset
+            elif self.interface_sprite_x - self.offsetx <= 0 and self.interface_offset_reset:
+                self.interface_offset_reset = False
+            if self.interface_offset_reset :
+                self.interface_sprite_x -= self.interface_offset_x
+            else :
+                self.interface_sprite_x += self.interface_offset_x
+            
     
     # Function to display the player
     def display(self, screen):
@@ -184,6 +205,9 @@ class PlayerClass:
             height = self.selected_sprite_offsety
             screen.blit(self.selected_sprite, (x, y), (x2, y2, width, height))
         screen.blit(self.current_sprite, (self.x - self.offsetx / 2, self.y - self.current_sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
+
+    def draw_selection_interface(self, screen):
+        screen.blit(self.interface_sprite, (0 + 30, screen.get_height() - self.interface_sprite.get_height() - 70), (self.interface_sprite_x, 0, self.interface_offset_x, self.interface_offset_y))
 
     # Function to take damage
     def take_damage(self, amount):
@@ -224,4 +248,8 @@ def init_warrior(screen):
     warrior.selected_sprite_offsetx = 2644/21
     warrior.selected_sprite_offsety = 60
     warrior.selected_sprite_animation_speed = 35
+    warrior.interface_sprite = pygame.transform.scale_by(aninmated_sprites_list[10], (0.5, 0.5))
+    warrior.interface_sprite_speed = 50
+    warrior.interface_offset_y = 317 / 2
+    warrior.interface_offset_x = (7999 / (16 * 2))
     return warrior
