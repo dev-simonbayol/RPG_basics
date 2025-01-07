@@ -14,6 +14,13 @@ class class_game_manager:
         self.font = None
         self.events = None
         
+        # map data
+        self.map_size_x = 1920
+        self.map_size_y = 1080
+        self.map_view = None
+        self.larger_map_view = None
+        self.map_speed = 6
+        
         # sprites and object lists
         self.map_png_list = None
         self.generated_map_obj = None
@@ -67,19 +74,28 @@ def init_game_manager():
     # interface loading
     game_manager.interface = load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\interface", 1, 1)
 
+    x = 1920 * 2
+    y = 1080 * 2
+    game_manager.map_size_x = x
+    game_manager.map_size_y = y
+    game_manager.larger_map_view = pygame.Rect(-400, -400, 1920 + 800, 1080 + 800)
+    game_manager.map_view = pygame.Rect(0, 0, 1920, 1080)
+    game_manager.map_view.width = game_manager.screen.get_width()
+    game_manager.map_view.height = game_manager.screen.get_height()
+
     # Calculate the number of flowers based on the screen size
-    screen_area = game_manager.screen.get_width() * game_manager.screen.get_height()
-    flower_count = screen_area // 5000  # Adjust the divisor to control density
+    screen_area = game_manager.map_size_x * game_manager.map_size_y
+    flower_count = screen_area // 10000  # Adjust the divisor to control density
 
     # Generate object positions once and store them in a list
     game_manager.generated_map_obj = []
     game_manager.generated_map_bg = []
-    game_manager.generated_map_bg.append(generate_grass_positions(game_manager.screen, game_manager.map_png_list[0])) # grass fill
-    game_manager.generated_map_bg.append(generate_flower_positions(game_manager.screen, game_manager.map_png_list[1], flower_count)) # grass details flowers
-    game_manager.generated_map_obj.append(generate_bush_positions(game_manager.screen, game_manager.map_png_list[3], flower_count // 2)) # bushes
-    game_manager.generated_map_obj.append(generate_tree_positions(game_manager.screen, game_manager.map_png_list[2], flower_count // 6)) # tree in map
-    game_manager.generated_map_obj.append(generate_stones_positions(game_manager.screen, game_manager.map_png_list[4], flower_count // 10)) # stones in map
-    game_manager.generated_map_obj.append(generate_logs_positions(game_manager.screen, game_manager.map_png_list[5], flower_count // 50)) # logs in map
+    game_manager.generated_map_bg.append(generate_grass_positions(game_manager.map_png_list[0], x, y)) # grass fill
+    game_manager.generated_map_bg.append(generate_flower_positions(game_manager.map_png_list[1], flower_count, x, y)) # grass details flowers
+    game_manager.generated_map_obj.append(generate_bush_positions(game_manager.map_png_list[3], flower_count // 2, x, y)) # bushes
+    game_manager.generated_map_obj.append(generate_tree_positions(game_manager.map_png_list[2], flower_count // 6, x, y)) # tree in map
+    game_manager.generated_map_obj.append(generate_stones_positions(game_manager.map_png_list[4], flower_count // 10, x, y)) # stones in map
+    game_manager.generated_map_obj.append(generate_logs_positions(game_manager.map_png_list[5], flower_count // 50, x , y)) # logs in map
 
 
     # List of animations

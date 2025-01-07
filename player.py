@@ -73,6 +73,16 @@ class PlayerClass:
     def update_hitbox(self):
         self.hitbox = pygame.Rect(self.x - self.offsetx / 4.3, self.y - self.current_sprite.get_height() / 1.7, self.offsetx / 2, self.offsety / 1.6)
         self.colhitbox = pygame.Rect(self.x - self.offsetx / 14, self.y - self.current_sprite.get_height() / 14, self.offsetx / 5, self.offsety / 12)
+    
+    def get_hitbox(self, view):
+        hitbox = pygame.Rect(self.hitbox.x - view.x, self.hitbox.y - view.y, self.hitbox.width, self.hitbox.height)
+        return hitbox
+
+    
+    def get_colhitbox(self, view):
+        hitbox = pygame.Rect(self.colhitbox.x - view.x, self.colhitbox.y - view.y, self.colhitbox.width, self.colhitbox.height)
+        return hitbox
+
 
     # Function to manage the player's movement
     def moving(self, time):
@@ -194,7 +204,7 @@ class PlayerClass:
             
     
     # Function to display the player
-    def display(self, screen):
+    def display(self, screen, view):
         
         if self.is_selected: # display the selection sprite if the player is selected
             x = self.x - self.selected_sprite_offsetx / 2
@@ -203,10 +213,10 @@ class PlayerClass:
             y2 = self.selected_sprite_y
             width = self.selected_sprite_offsetx
             height = self.selected_sprite_offsety
-            screen.blit(self.selected_sprite, (x, y), (x2, y2, width, height))
-        screen.blit(self.current_sprite, (self.x - self.offsetx / 2, self.y - self.current_sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
+            screen.blit(self.selected_sprite, (x - view.x, y - view.y), (x2, y2, width, height))
+        screen.blit(self.current_sprite, (self.x - self.offsetx / 2 - view.x, self.y - self.current_sprite.get_height() - view.y), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
 
-    def draw_selection_interface(self, screen):
+    def draw_selection_interface(self, screen, view):
         screen.blit(self.interface_sprite, (0 + 8, screen.get_height() - self.interface_sprite.get_height()- 5), (self.interface_sprite_x, 0, self.interface_offset_x, self.interface_offset_y))
 
     # Function to take damage

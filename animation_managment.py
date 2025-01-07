@@ -35,10 +35,13 @@ class Map_Animation:
         if indicator == "idle":
             self.rep_count = self.nb_repetition + 1
     
-    def display(self, screen, indicator = True):
+    def display(self, screen, indicator = True, view = None):
         if not indicator and self.type == "rclick":
             return
-        screen.blit(self.sprite, (self.x - self.offsetx / 2, self.y - self.sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
+        if view == None:
+            screen.blit(self.sprite, (self.x - self.offsetx / 2, self.y - self.sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
+        else:
+            screen.blit(self.sprite, (self.x - self.offsetx / 2 - view.x, self.y - self.sprite.get_height() - view.y), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
 
 
 def animation_managment(game_manager):

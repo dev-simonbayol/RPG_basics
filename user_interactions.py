@@ -10,4 +10,7 @@ class user_interaction:
         self.save_y = 0
         self.draw_invisible_area = False
         
-    
+    def get_area(self, view):
+        area = pygame.Rect(self.area.x - view.x, self.area.y - view.y, self.area.width, self.area.height)
+        return area
+        
