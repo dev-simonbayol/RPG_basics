@@ -104,35 +104,35 @@ def get_selected_obj_in_area(user_interactions, player):
     else :
         player.is_selected = False
 
-def manage_keys_input (clock, running, player, animations_list, user_interactions, events, generated_map_obj):
+def manage_keys_input (game_manager):
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     
-    update_cd(clock) #update global cooldowns
+    update_cd(game_manager.clock) #update global cooldowns
     
-    for event in events: # events loop handling (single_time pressed events)
+    for event in game_manager.events: # events loop handling (single_time pressed events)
         if event.type == pygame.QUIT:
-            running[0] = False
+            game_manager.running = False
         if event.type == pygame.MOUSEBUTTONDOWN: # mouse click handling
             if event.button == pygame.BUTTON_RIGHT:
-                delete_animation_right_click(animations_list, player)
+                delete_animation_right_click(game_manager.animations_list, game_manager.player)
             if event.button == pygame.BUTTON_LEFT:
-                left_click_pressed(player, animations_list, user_interactions)
+                left_click_pressed(game_manager.player, game_manager.animations_list, game_manager.user_interactions)
         if event.type == pygame.MOUSEBUTTONUP: # mouse release handling
             if event.button == pygame.BUTTON_RIGHT:
-                create_animation_right_click(player, animations_list, pygame.mouse.get_pos())
+                create_animation_right_click(game_manager.player, game_manager.animations_list, pygame.mouse.get_pos())
             if event.button == pygame.BUTTON_LEFT:
-                get_selected_obj_in_area(user_interactions, player)
-                user_interactions.click = False
-                user_interactions.area = None
+                get_selected_obj_in_area(game_manager.user_interactions, game_manager.player)
+                game_manager.user_interactions.click = False
+                game_manager.user_interactions.area = None
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_u:
-                user_interactions.draw_invisible_area = not user_interactions.draw_invisible_area
+                game_manager.user_interactions.draw_invisible_area = not game_manager.user_interactions.draw_invisible_area
     
     # keys input handling (repeated pressed events)
     if keys[pygame.K_ESCAPE]:
-        running[0] = False
+        game_manager.running = False
     if mouse[pygame.BUTTON_RIGHT - 1]:
-        right_click_actions(player, animations_list)
+        right_click_actions(game_manager.player, game_manager.animations_list)
     if mouse[pygame.BUTTON_LEFT - 1]:
-        left_click_actions(user_interactions)
+        left_click_actions(game_manager.user_interactions)
