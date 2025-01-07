@@ -183,7 +183,7 @@ class PlayerClass:
         
         if self.interface_sprite_time > self.interface_sprite_speed :
             self.interface_sprite_time = 0
-            if self.interface_sprite_x + self.interface_offset_x > self.interface_sprite.get_width() and self.interface_offset_reset == False:
+            if self.interface_sprite_x + self.interface_offset_x * 3 > self.interface_sprite.get_width() and self.interface_offset_reset == False:
                 self.interface_offset_reset = not self.interface_offset_reset
             elif self.interface_sprite_x - self.offsetx <= 0 and self.interface_offset_reset:
                 self.interface_offset_reset = False
@@ -207,7 +207,7 @@ class PlayerClass:
         screen.blit(self.current_sprite, (self.x - self.offsetx / 2, self.y - self.current_sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
 
     def draw_selection_interface(self, screen):
-        screen.blit(self.interface_sprite, (0 + 30, screen.get_height() - self.interface_sprite.get_height() - 70), (self.interface_sprite_x, 0, self.interface_offset_x, self.interface_offset_y))
+        screen.blit(self.interface_sprite, (0 + 8, screen.get_height() - self.interface_sprite.get_height()- 5), (self.interface_sprite_x, 0, self.interface_offset_x, self.interface_offset_y))
 
     # Function to take damage
     def take_damage(self, amount):
@@ -248,8 +248,8 @@ def init_warrior(screen):
     warrior.selected_sprite_offsetx = 2644/21
     warrior.selected_sprite_offsety = 60
     warrior.selected_sprite_animation_speed = 35
-    warrior.interface_sprite = pygame.transform.scale_by(aninmated_sprites_list[10], (0.5, 0.5))
-    warrior.interface_sprite_speed = 50
-    warrior.interface_offset_y = 317 / 2
-    warrior.interface_offset_x = (7999 / (16 * 2))
+    warrior.interface_sprite = pygame.transform.scale(aninmated_sprites_list[10], (235 * 23, 220))
+    warrior.interface_sprite_speed = 100
+    warrior.interface_offset_y = 225
+    warrior.interface_offset_x = warrior.interface_sprite.get_width() / 24
     return warrior
