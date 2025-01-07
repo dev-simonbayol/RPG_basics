@@ -108,7 +108,7 @@ def check_collision(player, generated_map_obj):
                     change_direction(player, obj)
                     break
 
-def moving_managment(clock, player, generated_map_obj) :
-    if player.state == "run":
-        player.moving(clock.get_time())
-        check_collision(player, generated_map_obj)
+def moving_managment(game_manager) :
+    if game_manager.player.state == "run":
+        game_manager.player.moving(game_manager.clock.get_time())
+        check_collision(game_manager.player, game_manager.generated_map_obj)

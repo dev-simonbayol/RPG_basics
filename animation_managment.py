@@ -41,14 +41,14 @@ class Map_Animation:
         screen.blit(self.sprite, (self.x - self.offsetx / 2, self.y - self.sprite.get_height()), (self.animation_x, self.animation_y, self.offsetx, self.offsety))
 
 
-def animation_managment(clock, player, animations_list):
-    d_time = clock.get_time()
+def animation_managment(game_manager):
+    d_time = game_manager.clock.get_time()
     
-    player.animation(d_time) # launch player animation
+    game_manager.player.animation(d_time) # launch player animation
     
-    for animation in animations_list: # launch all animations
+    for animation in game_manager.animations_list: # launch all animations
         if animation.delay != 0 and animation.delay_n <= animation.delay: # manage the delay of new animation
             animation.delay_n += d_time
-        animation.animation(d_time, indicator=player.state)
+        animation.animation(d_time, indicator = game_manager.player.state)
         if animation.rep_count > animation.nb_repetition:
-            animations_list.remove(animation)
+            game_manager.animations_list.remove(animation)

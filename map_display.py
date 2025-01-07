@@ -156,13 +156,13 @@ def display_interface(screen, interface, font, player):
         player.draw_selection_interface(screen)
 
 # main function to print the map on the screen
-def print_map(screen, generatted_map_bg, generated_map_obj, player, animations_list, user_interactions, interface, clock, font):
+def print_map(game_manager):
     fullmap = False
     x, y = 0, 0
-    print_grass(screen, generatted_map_bg[0])
-    print_detailed_grass(screen, generatted_map_bg[1])
-    print_shadows(screen, generated_map_obj)
-    display_obj(screen, generated_map_obj, player, user_interactions)
-    display_animations(screen, animations_list, player)
-    display_selection_area(screen, user_interactions, player, font, clock)
-    display_interface(screen, interface, font, player)
+    print_grass(game_manager.screen, game_manager.generated_map_bg[0])
+    print_detailed_grass(game_manager.screen, game_manager.generated_map_bg[1])
+    print_shadows(game_manager.screen, game_manager.generated_map_obj)
+    display_obj(game_manager.screen, game_manager.generated_map_obj, game_manager.player, game_manager.user_interactions)
+    display_animations(game_manager.screen, game_manager.animations_list, game_manager.player)
+    display_selection_area(game_manager.screen, game_manager.user_interactions, game_manager.player, game_manager.font, game_manager.clock)
+    display_interface(game_manager.screen, game_manager.interface, game_manager.font, game_manager.player)
