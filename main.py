@@ -3,7 +3,7 @@ import sys
 
 # Import function from other .py files
 from keys import *
-from map_display import *
+from map_display_chunk import *
 from object_class_map_ressources import *
 from animation_managment import *
 from moving import *
@@ -14,7 +14,7 @@ pygame.init()
 
 # create and init the game_manager which contains every important aspect of the game current informations
 game_manager = init_game_manager()
-
+game_manager.disp_chunks = get_chunk_to_display(game_manager)
 
 # Main loop
 
@@ -25,7 +25,7 @@ while game_manager.running:
     game_manager.events = pygame.event.get()
     # get keys input from player
     manage_keys_input(game_manager)
-    print_map(game_manager)
+    print_map_chunk(game_manager)
     moving_managment(game_manager)
     animation_managment(game_manager)
     # Update the display

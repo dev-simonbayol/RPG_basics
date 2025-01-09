@@ -1,6 +1,7 @@
 import pygame
 from player import *
 from animation_managment import *
+from chunk_map import *
 
 pygame.init()
 
@@ -104,6 +105,32 @@ def get_selected_obj_in_area(user_interactions, player, view):
     else :
         player.is_selected = False
 
+def move_view(game_manager, keys):
+    if keys[pygame.K_d]:
+        if game_manager.map_view.x + 1920 + game_manager.map_speed < game_manager.map_size_x:
+            game_manager.map_view.x += + game_manager.map_speed
+            game_manager.larger_map_view.x += game_manager.map_speed
+            game_manager.map_decay += game_manager.map_speed
+    if keys[pygame.K_z]:
+        if game_manager.map_view.y >= + game_manager.map_speed:
+            game_manager.map_view.y -= + game_manager.map_speed
+            game_manager.larger_map_view.y -= game_manager.map_speed
+            game_manager.map_decay += game_manager.map_speed
+    if keys[pygame.K_q]:
+        if game_manager.map_view.x >= + game_manager.map_speed:
+            game_manager.map_view.x -= + game_manager.map_speed
+            game_manager.larger_map_view.x -= game_manager.map_speed
+            game_manager.map_decay += game_manager.map_speed
+    if keys[pygame.K_s]:
+        if game_manager.map_view.y + 1080 + game_manager.map_speed < game_manager.map_size_y:
+            game_manager.map_view.y += + game_manager.map_speed
+            game_manager.larger_map_view.y += game_manager.map_speed
+            game_manager.map_decay += game_manager.map_speed
+    if game_manager.map_decay >= game_manager.chunk_size_x / 10:
+        game_manager.map_decay = 0
+        game_manager.disp_chunks = get_chunk_to_display(game_manager)
+    
+
 def manage_keys_input (game_manager):
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
@@ -130,24 +157,9 @@ def manage_keys_input (game_manager):
                 game_manager.user_interactions.draw_invisible_area = not game_manager.user_interactions.draw_invisible_area
     
     # keys input handling (repeated pressed events)
+    move_view(game_manager, keys)
     if keys[pygame.K_ESCAPE]:
         game_manager.running = False
-    if keys[pygame.K_d]:
-        if game_manager.map_view.x + 1920 + game_manager.map_speed < game_manager.map_size_x:
-            game_manager.map_view.x += + game_manager.map_speed
-            game_manager.larger_map_view.x += + game_manager.map_speed
-    if keys[pygame.K_z]:
-        if game_manager.map_view.y >= + game_manager.map_speed:
-            game_manager.map_view.y -= + game_manager.map_speed
-            game_manager.larger_map_view.y -= + game_manager.map_speed
-    if keys[pygame.K_q]:
-        if game_manager.map_view.x >= + game_manager.map_speed:
-            game_manager.map_view.x -= + game_manager.map_speed
-            game_manager.larger_map_view.x -= + game_manager.map_speed
-    if keys[pygame.K_s]:
-        if game_manager.map_view.y + 1080 + game_manager.map_speed < game_manager.map_size_y:
-            game_manager.map_view.y += + game_manager.map_speed
-            game_manager.larger_map_view.y += + game_manager.map_speed
     if mouse[pygame.BUTTON_RIGHT - 1]:
         right_click_actions(game_manager.player, game_manager.animations_list, game_manager.map_view)
     if mouse[pygame.BUTTON_LEFT - 1]:

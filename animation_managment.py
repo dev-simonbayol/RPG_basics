@@ -48,7 +48,7 @@ def animation_managment(game_manager):
     d_time = game_manager.clock.get_time()
     
     game_manager.player.animation(d_time) # launch player animation
-    
+
     for animation in game_manager.animations_list: # launch all animations
         if animation.delay != 0 and animation.delay_n <= animation.delay: # manage the delay of new animation
             animation.delay_n += d_time

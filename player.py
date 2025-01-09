@@ -1,7 +1,7 @@
 import pygame
 import math
 
-from map_display import load_sprites
+from map_display_chunk import load_sprites
 
 class PlayerClass:
     def __init__(self, x, y):

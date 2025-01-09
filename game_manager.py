@@ -1,9 +1,9 @@
 import pygame
 
 from user_interactions import *
-from map_display import *
+from map_display_chunk import *
 from player import *
-
+from chunk_map import *
 
 class class_game_manager:
     def __init__(self):
@@ -20,6 +20,13 @@ class class_game_manager:
         self.map_view = None
         self.larger_map_view = None
         self.map_speed = 6
+        self.map_decay = 0
+        self.chunks = None
+        self.disp_chunks = None
+        self.chunk_size_x = 500
+        self.chunk_size_y = 500
+        self.nb_chunk_x = 1
+        self.nb_chunk_y = 1
         
         # sprites and object lists
         self.map_png_list = None
@@ -57,10 +64,16 @@ def init_game_manager():
     # setup fonts
     game_manager.font = pygame.font.SysFont("Comic Sans MS", 30, bold=False, italic=False)
 
+    # chunk attribute for loading sprites
+    game_manager.chunk_size_x = 500
+    game_manager.chunk_size_y = 500
+    game_manager.nb_chunk_x = 20
+    game_manager.nb_chunk_y = 20
+
     # set up images in a list
     game_manager.map_png_list = []
     #grass fill 0
-    game_manager.map_png_list.append(load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\map_village\theme1\1 Tiles\grass", 10, 10))
+    game_manager.map_png_list.append(load_sprites_size(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\map_village\theme1\1 Tiles\grass", game_manager.chunk_size_x, game_manager.chunk_size_y))
     #grass details 1
     game_manager.map_png_list.append(load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\map_village\theme1\2 Objects\5 Grass", 1, 1))
     # shadow and tree 2
@@ -74,10 +87,8 @@ def init_game_manager():
     # interface loading
     game_manager.interface = load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\interface", 1, 1)
 
-    x = 1920 * 2
-    y = 1080 * 2
-    game_manager.map_size_x = x
-    game_manager.map_size_y = y
+    game_manager.map_size_x = game_manager.chunk_size_x * game_manager.chunk_size_x
+    game_manager.map_size_y = game_manager.chunk_size_y * game_manager.chunk_size_y
     game_manager.larger_map_view = pygame.Rect(-400, -400, 1920 + 800, 1080 + 800)
     game_manager.map_view = pygame.Rect(0, 0, 1920, 1080)
     game_manager.map_view.width = game_manager.screen.get_width()
@@ -90,14 +101,16 @@ def init_game_manager():
     # Generate object positions once and store them in a list
     game_manager.generated_map_obj = []
     game_manager.generated_map_bg = []
-    game_manager.generated_map_bg.append(generate_grass_positions(game_manager.map_png_list[0], x, y)) # grass fill
-    game_manager.generated_map_bg.append(generate_flower_positions(game_manager.map_png_list[1], flower_count, x, y)) # grass details flowers
-    game_manager.generated_map_obj.append(generate_bush_positions(game_manager.map_png_list[3], flower_count // 2, x, y)) # bushes
-    game_manager.generated_map_obj.append(generate_tree_positions(game_manager.map_png_list[2], flower_count // 6, x, y)) # tree in map
-    game_manager.generated_map_obj.append(generate_stones_positions(game_manager.map_png_list[4], flower_count // 10, x, y)) # stones in map
-    game_manager.generated_map_obj.append(generate_logs_positions(game_manager.map_png_list[5], flower_count // 50, x , y)) # logs in map
+    # game_manager.generated_map_bg.append(generate_grass_positions(game_manager.map_png_list[0], x, y)) # grass fill
+    # game_manager.generated_map_bg.append(generate_flower_positions(game_manager.map_png_list[1], flower_count, x, y)) # grass details flowers
+    # game_manager.generated_map_obj.append(generate_bush_positions(game_manager.map_png_list[3], flower_count // 2, x, y)) # bushes
+    # game_manager.generated_map_obj.append(generate_tree_positions(game_manager.map_png_list[2], flower_count // 6, x, y)) # tree in map
+    # game_manager.generated_map_obj.append(generate_stones_positions(game_manager.map_png_list[4], flower_count // 10, x, y)) # stones in map
+    # game_manager.generated_map_obj.append(generate_logs_positions(game_manager.map_png_list[5], flower_count // 50, x , y)) # logs in map
 
 
+    game_manager.chunks = generate_chunks(game_manager.nb_chunk_x, game_manager.nb_chunk_y, game_manager, game_manager.chunk_size_x, game_manager.chunk_size_y)
+    
     # List of animations
     game_manager.animations_list = []
 
