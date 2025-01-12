@@ -96,19 +96,20 @@ def change_direction(player, object):
     player.update_hitbox()
     player.init_movement()
 
-def check_collision(player, generated_map_obj):
+def check_collision(player, chunks):
     
-    for objects_list in generated_map_obj:
-        for obj in objects_list:
-            if obj.col_hitbox is not None:
-                if player.colhitbox.colliderect(obj.col_hitbox):
-                    player.x = player.old_x
-                    player.y = player.old_y
-                    player.update_hitbox()
-                    change_direction(player, obj)
-                    break
+    for chunk in chunks:
+        for obj_list in chunk.obj:
+            for obj in obj_list:
+                if obj.col_hitbox is not None:
+                    if player.colhitbox.colliderect(obj.col_hitbox):
+                        player.x = player.old_x
+                        player.y = player.old_y
+                        player.update_hitbox()
+                        change_direction(player, obj)
+                        break
 
 def moving_managment(game_manager) :
     if game_manager.player.state == "run":
         game_manager.player.moving(game_manager.clock.get_time())
-        check_collision(game_manager.player, game_manager.generated_map_obj)
+        check_collision(game_manager.player, game_manager.chunks)

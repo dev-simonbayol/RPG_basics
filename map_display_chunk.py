@@ -136,13 +136,15 @@ def print_shadows_chunk(game_manager, chunk):
 # displaying objects on the screen, from the top to the bottom
 def display_obj_chunk(game_manager, chunk):
     n_y = chunk.nb_y * chunk.size_y
+    n_x = chunk.nb_x * chunk.size_x
+    x = game_manager.player.x
     delta = 5 # precision of the display
     while n_y <= (chunk.nb_y + 1) * chunk.size_y:
         for objects in chunk.obj:
             for object in objects:
                 if object.y >= n_y - object.display_priority and object.y < n_y + delta:
                     object.display(game_manager.screen, game_manager.user_interactions, game_manager.map_view)
-        if game_manager.player.y >= n_y and game_manager.player.y < n_y + delta:
+        if game_manager.player.y >= n_y and game_manager.player.y < n_y + delta and x >= n_x and x <= n_x + chunk.size_x:
             if game_manager.larger_map_view.collidepoint(game_manager.player.x, game_manager.player.y):
                 game_manager.player.display(game_manager.screen, game_manager.map_view)
         n_y += delta
