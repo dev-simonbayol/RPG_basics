@@ -1,7 +1,7 @@
 import pygame
 import math
 
-from map_display_chunk import load_sprites
+from map_display_chunk import *
 
 class PlayerClass:
     def __init__(self, x, y):
@@ -40,6 +40,7 @@ class PlayerClass:
         self.die = None
         self.state = "idle"
         self.interface_sprite = None
+        self.minimap_icon = None
     
         # Player sprite animation attributes
         self.offsety = 128
@@ -286,4 +287,5 @@ def init_warrior(screen):
     warrior.interface_offset_y = 225
     warrior.interface_offset_x = warrior.interface_sprite.get_width() / 24
     warrior.font = pygame.font.SysFont("Intro Rust", 30, bold=False, italic=False)
+    warrior.minimap_icon = load_sprites_size(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\character_minimap", 15, 15)
     return warrior

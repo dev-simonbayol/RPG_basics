@@ -168,9 +168,24 @@ def display_selection_area_chunk(game_manager):
             pygame.draw.rect(game_manager.screen, (255, 0, 0), game_manager.player.get_hitbox(game_manager.map_view), 1)
             pygame.draw.rect(game_manager.screen, (0, 0, 255), game_manager.player.get_colhitbox(game_manager.map_view), 1)
 
+def display_mini_map(game_manager):
+    screen = game_manager.screen
+    x = (game_manager.map_view.x / game_manager.map_size_x) * 290
+    y = (game_manager.map_view.y / game_manager.map_size_y) * 230
+    ratio_view_x =  1920  * 290 / (game_manager.map_size_x)
+    ratio_view_y =  1080 * 230 / (game_manager.map_size_y)
+    
+    pygame.draw.rect(screen, (166, 176, 79), game_manager.minimap)
+    pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(screen.get_width() - 300 + x, screen.get_height() - 240 + y, ratio_view_x, ratio_view_y), 2)
+    
+    x_icon = (game_manager.minimap.x + 290 * game_manager.player.x / game_manager.map_size_x) - 15 / 2 # determinate the corect x location of the player to show on the minimap
+    y_icon = (game_manager.minimap.y + 230 * game_manager.player.y / game_manager.map_size_y) - 15 / 2 # determinate the corect y location of the player to show on the minimap
+    screen.blit(game_manager.player.minimap_icon[0], (x_icon, y_icon))
+
 def display_interface_chunk(game_manager):
     
     game_manager.screen.blit(game_manager.interface[0], (0, 0))
+    display_mini_map(game_manager)
     if game_manager.player.is_selected:
         game_manager.player.draw_selection_interface(game_manager.screen, game_manager.map_view)
 

@@ -27,6 +27,8 @@ class class_game_manager:
         self.chunk_size_y = 500
         self.nb_chunk_x = 1
         self.nb_chunk_y = 1
+        self.minimap = None
+        self.minimap_view = None
         
         # sprites and object lists
         self.map_png_list = None
@@ -42,6 +44,7 @@ class class_game_manager:
 
         #  UI managment
         self.user_interactions = None
+        self.minimap_clicked = False
         
         # bools
         self.running = True
@@ -87,8 +90,8 @@ def init_game_manager():
     # interface loading
     game_manager.interface = load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\interface", 1, 1)
 
-    game_manager.map_size_x = game_manager.chunk_size_x * game_manager.chunk_size_x
-    game_manager.map_size_y = game_manager.chunk_size_y * game_manager.chunk_size_y
+    game_manager.map_size_x = game_manager.chunk_size_x * game_manager.nb_chunk_x
+    game_manager.map_size_y = game_manager.chunk_size_y * game_manager.nb_chunk_y
     game_manager.larger_map_view = pygame.Rect(-400, -400, 1920 + 800, 1080 + 800)
     game_manager.map_view = pygame.Rect(0, 0, 1920, 1080)
     game_manager.map_view.width = game_manager.screen.get_width()
@@ -106,6 +109,7 @@ def init_game_manager():
 
 
     game_manager.chunks = generate_chunks(game_manager.nb_chunk_x, game_manager.nb_chunk_y, game_manager, game_manager.chunk_size_x, game_manager.chunk_size_y)
+    game_manager.minimap = pygame.Rect(game_manager.screen.get_width() - 300, game_manager.screen.get_height() - 240, 290, 230)
     
     # List of animations
     game_manager.animations_list = []

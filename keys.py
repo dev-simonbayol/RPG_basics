@@ -40,24 +40,34 @@ def create_animation_right_click(game_manager, mouse_pos):
     new_rclick.delay = 0
     game_manager.animations_list.append(new_rclick)
 
-def left_click_pressed (player, animations_list, user_interactions):
+def left_click_pressed (game_manager):
+    
     mouse_pos = pygame.mouse.get_pos()
+    
+    if game_manager.minimap.collidepoint(mouse_pos):
+        game_manager.minimap_clicked = True
+        game_manager.user_interactions.saved_x = mouse_pos[0]
+        game_manager.user_interactions.saved_y = mouse_pos[1]
+        return
+    
     new_area = pygame.Rect(mouse_pos[0], mouse_pos[1], 5, 5)
     new_drawable_area = pygame.surface.Surface((5, 5))
 
     new_drawable_area.set_alpha(35)
     new_drawable_area.fill((0, 255, 0))
-    user_interactions.click = True
-    user_interactions.area = new_area
-    user_interactions.drawable_area = new_drawable_area
-    user_interactions.saved_x = mouse_pos[0]
-    user_interactions.saved_y = mouse_pos[1]
+    game_manager.user_interactions.click = True
+    game_manager.user_interactions.area = new_area
+    game_manager.user_interactions.drawable_area = new_drawable_area
+    game_manager.user_interactions.saved_x = mouse_pos[0]
+    game_manager.user_interactions.saved_y = mouse_pos[1]
 
 
-def left_click_actions (user_interactions):
+def left_click_actions (user_interactions, minimap_clicked):
     mouse_pos = pygame.mouse.get_pos()
     
-    if user_interactions.click:
+    if minimap_clicked:
+        return "minimap_clicked"
+    elif user_interactions.click:
         if mouse_pos[0] - user_interactions.saved_x > 0 and mouse_pos[1] - user_interactions.saved_y > 0:
             user_interactions.area.x = user_interactions.saved_x
             user_interactions.area.y = user_interactions.saved_y
@@ -80,6 +90,7 @@ def left_click_actions (user_interactions):
             user_interactions.area.y = user_interactions.saved_y - user_interactions.area.height
 
         user_interactions.drawable_area = pygame.transform.scale(user_interactions.drawable_area, (user_interactions.area.width, user_interactions.area.height))
+        return "drawing_selection"
 
 
 def update_cd(clock):
@@ -89,21 +100,25 @@ def update_cd(clock):
     
     cd_mouse3 += d_time
 
-def get_selected_obj_in_area(user_interactions, player, view):
+def get_selected_obj_in_area(game_manager):
     
-    for selected_obj in user_interactions.selected_obj: # remove all selected objects
+    if game_manager.minimap_clicked == True:
+        game_manager.minimap_clicked = False
+        return
+    
+    for selected_obj in game_manager.user_interactions.selected_obj: # remove all selected objects
         selected_obj.is_selected = False
-        user_interactions.selected_obj.remove(selected_obj)
+        game_manager.user_interactions.selected_obj.remove(selected_obj)
     
-    if user_interactions.area.height == 0 or user_interactions.area.width == 0:
-        user_interactions.area.height = 1
-        user_interactions.area.width = 1
-    if user_interactions.area.colliderect(player.get_hitbox(view)): # check if the player is in the area
-        if player.is_selected == False:
-            user_interactions.selected_obj.append(player)
-            player.is_selected = True
+    if game_manager.user_interactions.area.height == 0 or game_manager.user_interactions.area.width == 0:
+        game_manager.user_interactions.area.height = 1
+        game_manager.user_interactions.area.width = 1
+    if game_manager.user_interactions.area.colliderect(game_manager.player.get_hitbox(game_manager.map_view)): # check if the player is in the area
+        if game_manager.player.is_selected == False:
+            game_manager.user_interactions.selected_obj.append(game_manager.player)
+            game_manager.player.is_selected = True
     else :
-        player.is_selected = False
+        game_manager.player.is_selected = False
 
 def move_view(game_manager, keys):
     if keys[pygame.K_d]:
@@ -126,10 +141,31 @@ def move_view(game_manager, keys):
             game_manager.map_view.y += + game_manager.map_speed
             game_manager.larger_map_view.y += game_manager.map_speed
             game_manager.map_decay += game_manager.map_speed
-    if game_manager.map_decay >= game_manager.chunk_size_x / 10:
+    if game_manager.map_decay >= game_manager.chunk_size_x / 5:
         game_manager.map_decay = 0
         game_manager.disp_chunks = get_chunk_to_display(game_manager)
     
+
+def move_view_from_minimap(gm):
+    mouse_pos = pygame.mouse.get_pos()
+    decay_x = (mouse_pos[0] - gm.minimap.x)
+    decay_y = (mouse_pos[1] - gm.minimap.y)
+
+    gm.map_view.x = (decay_x * gm.map_size_x / 290) - 1920 / 2
+    gm.map_view.y = (decay_y * gm.map_size_y / 230) - 1080 / 2
+    if gm.map_view.x >= gm.map_size_x - 1920:
+        gm.map_view.x = gm.map_size_x - 1920
+    if gm.map_view.y >= gm.map_size_y - 1080:
+        gm.map_view.y = gm.map_size_y - 1080
+    if gm.map_view.x <= 0:
+        gm.map_view.x = 0
+    if gm.map_view.y <= 0:
+        gm.map_view.y = 0
+    gm.larger_map_view.x = gm.map_view.x - 400
+    gm.larger_map_view.y = gm.map_view.y - 400
+    gm.disp_chunks = get_chunk_to_display(gm)
+
+
 
 def manage_keys_input (game_manager):
     keys = pygame.key.get_pressed()
@@ -144,12 +180,12 @@ def manage_keys_input (game_manager):
             if event.button == pygame.BUTTON_RIGHT:
                 delete_animation_right_click(game_manager.animations_list, game_manager.player)
             if event.button == pygame.BUTTON_LEFT:
-                left_click_pressed(game_manager.player, game_manager.animations_list, game_manager.user_interactions)
+                left_click_pressed(game_manager)
         if event.type == pygame.MOUSEBUTTONUP: # mouse release handling
             if event.button == pygame.BUTTON_RIGHT:
                 create_animation_right_click(game_manager, pygame.mouse.get_pos())
             if event.button == pygame.BUTTON_LEFT:
-                get_selected_obj_in_area(game_manager.user_interactions, game_manager.player, game_manager.map_view)
+                get_selected_obj_in_area(game_manager)
                 game_manager.user_interactions.click = False
                 game_manager.user_interactions.area = None
         if event.type == pygame.KEYDOWN:
@@ -163,4 +199,5 @@ def manage_keys_input (game_manager):
     if mouse[pygame.BUTTON_RIGHT - 1]:
         right_click_actions(game_manager.player, game_manager.animations_list, game_manager.map_view)
     if mouse[pygame.BUTTON_LEFT - 1]:
-        left_click_actions(game_manager.user_interactions)
+        if (left_click_actions(game_manager.user_interactions, game_manager.minimap_clicked)) == "minimap_clicked":
+            move_view_from_minimap(game_manager)
