@@ -11,7 +11,7 @@ cd_mouse3 = 0
 def right_click_actions (player, animations_list, view):
     global cd_mouse3
     
-    if cd_mouse3 > 75 and player.is_selected:
+    if cd_mouse3 > 75 and player.is_selected and player.has_died != True:
         player.dx = pygame.mouse.get_pos()[0] + view.x
         player.dy = pygame.mouse.get_pos()[1] + view.y
         player.check_facing()
@@ -28,7 +28,7 @@ def delete_animation_right_click(animations_list, player):
 
 def create_animation_right_click(game_manager, mouse_pos):
     
-    if game_manager.player.is_selected == False:
+    if game_manager.player.is_selected == False or game_manager.player.has_died == True:
         return
     
     new_sprite= load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\mouse", 1, 1) #create a new animation for right click on map

@@ -94,10 +94,6 @@ def init_game_manager():
     game_manager.map_view.width = game_manager.screen.get_width()
     game_manager.map_view.height = game_manager.screen.get_height()
 
-    # Calculate the number of flowers based on the screen size
-    screen_area = game_manager.map_size_x * game_manager.map_size_y
-    flower_count = screen_area // 10000  # Adjust the divisor to control density
-
     # Generate object positions once and store them in a list
     game_manager.generated_map_obj = []
     game_manager.generated_map_bg = []

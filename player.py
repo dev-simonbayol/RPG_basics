@@ -12,6 +12,7 @@ class PlayerClass:
         self.hitbox = 0
         self.colhitbox = None
         self.hp = 100
+        self.has_died = False
 
         # Player movement attributes
         self.dx = x
@@ -58,6 +59,7 @@ class PlayerClass:
 
         # Player display attributes
         self.display_priority = 0
+        self.font = None
         
         # Selection attributes
         self.is_selected = True
@@ -180,8 +182,10 @@ class PlayerClass:
         if self.animation_time > self.animation_speed: # timer of character animation
             if self.animation_x + self.offsetx < self.current_sprite.get_width():
                 self.animation_x += self.offsetx
-            else:
+            elif self.has_died != True:
                 self.animation_x = 0
+            elif self.has_died:
+                pass
             self.animation_time = 0
 
         if self.selected_sprite_animation_time > self.selected_sprite_animation_speed and self.is_selected: # timer of the selection animation
@@ -218,18 +222,37 @@ class PlayerClass:
 
     def draw_selection_interface(self, screen, view):
         screen.blit(self.interface_sprite, (0 + 8, screen.get_height() - self.interface_sprite.get_height()- 5), (self.interface_sprite_x, 0, self.interface_offset_x, self.interface_offset_y))
+        
+        text = self.font.render(f'Health :', True, (255,0,0))
+        hp = self.font.render(f'{self.hp}', True, (0,0,0))
+        pygame.draw.rect(screen, (255, 50, 50), pygame.Rect((395, screen.get_height() - 100, 100, 20)))
+        pygame.draw.rect(screen, (25, 255, 50), pygame.Rect((395, screen.get_height() - 100, self.hp, 20)))
+        screen.blit(text, (300, screen.get_height() - 100))
+        screen.blit(hp, (425, screen.get_height() - 100))
 
     # Function to take damage
     def take_damage(self, amount):
-        self.hp -= amount
-        if self.hp <= 0:
+        if (self.hp != 0):
+            self.hp -= amount
+        if self.hp <= 0 and self.has_died != True:
             self.hp = 0
-            self.disappear()
+            self.launch_death()
 
 
-    def disappear(self):
-        # Logic to make the player disappear
-        print("Player has disappeared.")
+    def launch_death(self):
+        # Logic to make the player die
+        
+        print("Player has died.")
+        
+        # state effects
+        self.state = "dead"
+        self.has_died = True
+        
+        # display
+        self.current_sprite = self.die
+        self.animation_speed = 400
+        self.animation_x = 0
+        
 
 
 # Function to initialize the warrior class as character
@@ -262,4 +285,5 @@ def init_warrior(screen):
     warrior.interface_sprite_speed = 100
     warrior.interface_offset_y = 225
     warrior.interface_offset_x = warrior.interface_sprite.get_width() / 24
+    warrior.font = pygame.font.SysFont("Intro Rust", 30, bold=False, italic=False)
     return warrior
