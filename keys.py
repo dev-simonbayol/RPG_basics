@@ -8,14 +8,21 @@ pygame.init()
 cd_mouse0 = 0
 cd_mouse3 = 0
 
-def right_click_actions (player, animations_list, view):
+def right_click_actions (player, view, mobs):
     global cd_mouse3
     
-    if cd_mouse3 > 75 and player.is_selected and player.has_died != True:
-        player.dx = pygame.mouse.get_pos()[0] + view.x
-        player.dy = pygame.mouse.get_pos()[1] + view.y
-        player.check_facing()
-        player.init_movement()
+    if cd_mouse3 > 75:
+        if player.is_selected and player.has_died != True:
+            player.dx = pygame.mouse.get_pos()[0] + view.x
+            player.dy = pygame.mouse.get_pos()[1] + view.y
+            player.check_facing()
+            player.init_movement()
+        for mob in mobs:
+            if mob.is_selected and mob.has_died != True:
+                mob.dx = pygame.mouse.get_pos()[0] + view.x
+                mob.dy = pygame.mouse.get_pos()[1] + view.y
+                mob.check_facing()
+                mob.init_movement()
         cd_mouse3 = 0
 
 
@@ -119,6 +126,14 @@ def get_selected_obj_in_area(game_manager):
             game_manager.player.is_selected = True
     else :
         game_manager.player.is_selected = False
+    
+    for mob in game_manager.mobs:
+        if game_manager.user_interactions.area.colliderect(mob.get_hitbox(game_manager.map_view)): # check if the mob is in the area
+            if mob.is_selected == False:
+                game_manager.user_interactions.selected_obj.append(mob)
+                mob.is_selected = True
+        else :
+            mob.is_selected = False
 
 def move_view(game_manager, keys):
     if keys[pygame.K_d]:
@@ -197,7 +212,7 @@ def manage_keys_input (game_manager):
     if keys[pygame.K_ESCAPE]:
         game_manager.running = False
     if mouse[pygame.BUTTON_RIGHT - 1]:
-        right_click_actions(game_manager.player, game_manager.animations_list, game_manager.map_view)
+        right_click_actions(game_manager.player, game_manager.map_view, game_manager.mobs)
     if mouse[pygame.BUTTON_LEFT - 1]:
         if (left_click_actions(game_manager.user_interactions, game_manager.minimap_clicked)) == "minimap_clicked":
             move_view_from_minimap(game_manager)

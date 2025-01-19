@@ -4,6 +4,7 @@ from user_interactions import *
 from map_display_chunk import *
 from player import *
 from chunk_map import *
+from werewolf import *
 
 class class_game_manager:
     def __init__(self):
@@ -39,8 +40,9 @@ class class_game_manager:
         # individual sprites
         self.interface = None
 
-        # playable characters
+        # units in the map
         self.player = None
+        self.mobs = None
 
         #  UI managment
         self.user_interactions = None
@@ -119,6 +121,10 @@ def init_game_manager():
 
     #init player
     game_manager.player = init_warrior(game_manager.screen)
+
+    # init mobs
+    game_manager.mobs = []
+    game_manager.mobs.append(init_black_werewolf(game_manager.screen))
 
     #init user_interaction
     game_manager.user_interactions = user_interaction()
