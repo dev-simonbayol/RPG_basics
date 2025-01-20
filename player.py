@@ -13,6 +13,9 @@ class PlayerClass:
         self.colhitbox = None
         self.hp = 100
         self.has_died = False
+        self.target = None
+        self.damage = 5
+        self.atk_speed = 325
 
         # Player movement attributes
         self.dx = x
@@ -87,6 +90,13 @@ class PlayerClass:
         return hitbox
 
 
+    def launch_attack(self):
+        self.current_sprite = self.attack
+        self.animation_speed = self.atk_speed / (self.current_sprite.get_width() / self.offsetx)
+        self.target.take_damage(self.damage)
+        if self.target.hp <= 0:
+            self.target = None
+
     # Function to manage the player's movement
     def moving(self, time):
         if self.running_time > 5: # speed (time) of the player movement action
@@ -123,10 +133,14 @@ class PlayerClass:
         else:
             self.running_time += time # increment the timer of the movement
         if self.x == self.dx and self.y == self.dy: # if the player has reached the destination
-            self.state = "idle"
-            self.current_sprite = self.idle
-            self.animation_speed = 200
-            self.x_speed = 0
+            if self.target == None:
+                self.state = "idle"
+                self.current_sprite = self.idle
+                self.animation_speed = 200
+                self.x_speed = 0
+            else :
+                if self.current_sprite != self.attack:
+                    self.launch_attack()
     
     
     # Function to define the x speed of the player, in order to have a constant speed
@@ -185,6 +199,10 @@ class PlayerClass:
                 self.animation_x += self.offsetx
             elif self.has_died != True:
                 self.animation_x = 0
+                if self.current_sprite == self.attack:
+                    self.target.take_damage(self.damage)
+                    if self.target.hp <= 0:
+                        self.current_sprite = self.idle
             elif self.has_died:
                 pass
             self.animation_time = 0

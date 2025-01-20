@@ -17,6 +17,7 @@ def right_click_actions (player, view, mobs):
             player.dy = pygame.mouse.get_pos()[1] + view.y
             player.check_facing()
             player.init_movement()
+            player.target = None
         for mob in mobs:
             if mob.is_selected and mob.has_died != True:
                 mob.dx = pygame.mouse.get_pos()[0] + view.x
@@ -33,11 +34,31 @@ def delete_animation_right_click(animations_list, player):
             animations_list.remove(animation)
 
 
-def create_animation_right_click(game_manager, mouse_pos):
+def trigger_attack(gm, mob):
+    global cd_mouse3
+
+    gm.player.dx = mob.x - 50
+    gm.player.dy = mob.y
+    gm.player.check_facing()
+    gm.player.init_movement()
+    gm.player.target = mob
+    cd_mouse3 = -25
+    
+
+def right_click_released(game_manager, mouse_pos):
     
     if game_manager.player.is_selected == False or game_manager.player.has_died == True:
-        return
+        return 
     
+    mob_n = 0
+    for mob in game_manager.mobs:
+        if mob.hitbox.collidepoint(mouse_pos):
+            if mob.hp > 0:
+                trigger_attack(game_manager, mob)
+            return
+        mob_n += 1
+    
+    game_manager.player.target = None
     new_sprite= load_sprites(r"C:\Users\simon\Desktop\personal_project\RPG_basics\sprites\UI\mouse", 1, 1) #create a new animation for right click on map
     new_rclick = Map_Animation(new_sprite[0], mouse_pos[0] + game_manager.map_view.x, mouse_pos[1] + game_manager.map_view.y, 436/14, 15, 5, "rclick")
 
@@ -198,7 +219,7 @@ def manage_keys_input (game_manager):
                 left_click_pressed(game_manager)
         if event.type == pygame.MOUSEBUTTONUP: # mouse release handling
             if event.button == pygame.BUTTON_RIGHT:
-                create_animation_right_click(game_manager, pygame.mouse.get_pos())
+                right_click_released(game_manager, pygame.mouse.get_pos())
             if event.button == pygame.BUTTON_LEFT:
                 get_selected_obj_in_area(game_manager)
                 game_manager.user_interactions.click = False
