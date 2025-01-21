@@ -16,6 +16,7 @@ class PlayerClass:
         self.target = None
         self.damage = 5
         self.atk_speed = 325
+        self.xp = 0
 
         # Player movement attributes
         self.dx = x
@@ -28,6 +29,7 @@ class PlayerClass:
         self.running_time = 0
         self.old_x = x
         self.old_y = y
+        self.is_attacking = False
     
         # Player sprite attributes
         self.current_sprite = None
@@ -91,14 +93,26 @@ class PlayerClass:
 
 
     def launch_attack(self):
-        self.current_sprite = self.attack
+        if self.facing == "left":
+            self.current_sprite = pygame.transform.flip(self.attack, True, False)
+        else :
+            self.current_sprite = self.attack
+        self.is_attacking = True
         self.animation_speed = self.atk_speed / (self.current_sprite.get_width() / self.offsetx)
-        self.target.take_damage(self.damage)
+        self.animation_time = 0
         if self.target.hp <= 0:
-            self.target = None
+            self.xp += self.target.xp_give
+            self.stop()
 
     # Function to manage the player's movement
     def moving(self, time):
+        if self.is_attacking:
+            return
+        if self.target != None:
+            self.dx = self.target.x
+            self.dy = self.target.y
+            self.init_movement()
+            self.check_facing()
         if self.running_time > 5: # speed (time) of the player movement action
             self.old_x = self.x
             self.old_y = self.y
@@ -132,14 +146,11 @@ class PlayerClass:
             self.update_hitbox()
         else:
             self.running_time += time # increment the timer of the movement
-        if self.x == self.dx and self.y == self.dy: # if the player has reached the destination
-            if self.target == None:
-                self.state = "idle"
-                self.current_sprite = self.idle
-                self.animation_speed = 200
-                self.x_speed = 0
-            else :
-                if self.current_sprite != self.attack:
+        if self.x == self.dx and self.y == self.dy and self.target == None: # if the player has reached the destination
+            self.stop()
+            self.x_speed = 0
+        elif self.target != None:
+            if self.hitbox.colliderect(self.target.hitbox):
                     self.launch_attack()
     
     
@@ -187,7 +198,29 @@ class PlayerClass:
                 self.current_sprite = pygame.transform.flip(self.run, True, False)
             self.animation_speed = 50
             self.state = "run"
-        
+    
+    def stop(self):
+        self.current_sprite = self.idle
+        self.dx = self.x
+        self.dy = self.y
+        self.animation_time = 0
+        self.animation_speed = 100
+        self.target = None
+        self.facing = "right"
+        self.is_attacking = False
+    
+    def check_attack(self):
+        if self.target == None:
+            self.stop()
+            return
+        self.target.take_damage(self.damage)
+        if self.target.hp <= 0:
+            self.xp += self.target.xp_give
+            self.stop()
+        elif self.hitbox.colliderect(self.target.hitbox) == False:
+            self.current_sprite = self.run
+            self.is_attacking = False
+    
     # Function to manage the player's animation
     def animation (self, time):
         self.animation_time += time
@@ -199,10 +232,8 @@ class PlayerClass:
                 self.animation_x += self.offsetx
             elif self.has_died != True:
                 self.animation_x = 0
-                if self.current_sprite == self.attack:
-                    self.target.take_damage(self.damage)
-                    if self.target.hp <= 0:
-                        self.current_sprite = self.idle
+                if self.is_attacking:
+                    self.check_attack()
             elif self.has_died:
                 pass
             self.animation_time = 0

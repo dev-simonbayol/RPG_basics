@@ -14,6 +14,7 @@ class WerewolfClass:
         self.hp = 100
         self.has_died = False
         self.type = type
+        self.xp_give = 1
 
         # Player movement attributes
         self.dx = x

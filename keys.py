@@ -37,7 +37,7 @@ def delete_animation_right_click(animations_list, player):
 def trigger_attack(gm, mob):
     global cd_mouse3
 
-    gm.player.dx = mob.x - 50
+    gm.player.dx = mob.x
     gm.player.dy = mob.y
     gm.player.check_facing()
     gm.player.init_movement()
