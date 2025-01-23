@@ -11,10 +11,13 @@ class WerewolfClass:
         self.y = y
         self.hitbox = 0
         self.colhitbox = None
-        self.hp = 100
+        self.watchzone = None
+        self.hp = 70
         self.has_died = False
         self.type = type
         self.xp_give = 1
+        self.damage = 10
+        self.atk_speed = 750
 
         # Player movement attributes
         self.dx = x
@@ -27,6 +30,8 @@ class WerewolfClass:
         self.running_time = 0
         self.old_x = x
         self.old_y = y
+        self.is_attacking = False
+        self.target = None
     
         # Player sprite attributes
         self.current_sprite = None
@@ -78,6 +83,8 @@ class WerewolfClass:
     def update_hitbox(self):
         self.hitbox = pygame.Rect(self.x - self.offsetx / 4.3, self.y - self.current_sprite.get_height() / 1.7, self.offsetx / 2, self.offsety / 1.6)
         self.colhitbox = pygame.Rect(self.x - self.offsetx / 14, self.y - self.current_sprite.get_height() / 14, self.offsetx / 5, self.offsety / 12)
+        self.watchzone = pygame.Rect(self.x - 500, self.y - 500, 1000, 1000)
+        
     
     def get_hitbox(self, view):
         hitbox = pygame.Rect(self.hitbox.x - view.x, self.hitbox.y - view.y, self.hitbox.width, self.hitbox.height)
@@ -87,8 +94,20 @@ class WerewolfClass:
         hitbox = pygame.Rect(self.colhitbox.x - view.x, self.colhitbox.y - view.y, self.colhitbox.width, self.colhitbox.height)
         return hitbox
 
+    def get_watchzone(self, view):
+        watchzone = pygame.Rect(self.x - 500 - view.x, self.y - 500 - view.y, 1000, 1000)
+        return watchzone
+        
+
     # Function to manage the creature's movement
     def moving(self, time):
+        if self.is_attacking:
+            return
+        if self.target != None:
+            self.dx = self.target.x
+            self.dy = self.target.y
+            self.init_movement()
+            self.check_facing()
         if self.running_time > 5: # speed (time) of the creature movement action
             self.old_x = self.x
             self.old_y = self.y
@@ -120,13 +139,14 @@ class WerewolfClass:
                             self.y -= self.speed
             self.running_time = 0 #reset timer of the movement
             self.update_hitbox()
+            if self.x == self.dx and self.y == self.dy and self.target == None: # if the creature has reached the destination
+                self.stop()
+                self.x_speed = 0
+            elif self.target != None:
+                if self.hitbox.colliderect(self.target.hitbox):
+                    self.launch_attack()
         else:
             self.running_time += time # increment the timer of the movement
-        if self.x == self.dx and self.y == self.dy: # if the creature has reached the destination
-            self.state = "idle"
-            self.current_sprite = self.idle
-            self.animation_speed = 200
-            self.x_speed = 0
     
     
     # Function to define the x speed of the creature, in order to have a constant speed
@@ -173,7 +193,45 @@ class WerewolfClass:
                 self.current_sprite = pygame.transform.flip(self.run, True, False)
             self.animation_speed = 50
             self.state = "run"
+    
+    def stop(self):
         
+        self.current_sprite = self.idle
+        self.dx = self.x
+        self.dy = self.y
+        self.animation_time = 0
+        self.animation_speed = 100
+        self.target = None
+        self.facing = "right"
+        self.is_attacking = False
+        self.state = "idle"
+    
+    def check_attack(self):
+        if self.target == None:
+            self.stop()
+            return
+        self.target.take_damage(self.damage)
+        if self.target.hp <= 0:
+            self.stop()
+        elif self.hitbox.colliderect(self.target.hitbox) == False:
+            self.current_sprite = self.run
+            self.is_attacking = False
+    
+    def launch_attack(self):
+        
+        if self.target.hp <= 0:
+            self.stop()
+            return
+        
+        if self.facing == "left":
+            self.current_sprite = pygame.transform.flip(self.attack, True, False)
+        else :
+            self.current_sprite = self.attack
+        self.is_attacking = True
+        self.animation_speed = self.atk_speed / (self.current_sprite.get_width() / self.offsetx)
+        self.animation_time = 0
+        self.animation_x = 0
+    
     # Function to manage the creature's animation
     def animation (self, time):
         self.animation_time += time
@@ -185,6 +243,8 @@ class WerewolfClass:
                 self.animation_x += self.offsetx
             elif self.has_died != True:
                 self.animation_x = 0
+                if self.is_attacking:
+                    self.check_attack()
             elif self.has_died:
                 pass
             self.animation_time = 0
@@ -207,6 +267,22 @@ class WerewolfClass:
             else :
                 self.interface_sprite_x += self.interface_offset_x
             
+    
+    def look_for_targets(self, target):
+        
+        if target == None:
+            return
+        if self.watchzone.colliderect(target.hitbox) and target.hp > 0:
+            self.target = target
+            self.dx = target.x
+            self.dy = target.y
+            self.state = "run"
+        elif self.target != None:
+            self.target = None
+            self.state = "idle"
+            self.current_sprite = self.idle
+            
+    
     
     # Function to display the creature
     def display(self, screen, view):
@@ -276,6 +352,7 @@ def init_black_werewolf(screen):
     werewolf.offsety = 128 * size_ratio
     werewolf.hitbox = pygame.Rect(werewolf.x - werewolf.offsetx / 4.3, werewolf.y - werewolf.current_sprite.get_height() / 1.7, werewolf.offsetx / 2, werewolf.offsety / 1.6)
     werewolf.colhitbox = pygame.Rect(werewolf.x - werewolf.offsetx / 8, werewolf.y - werewolf.current_sprite.get_height() / 10, werewolf.offsetx / 3, werewolf.offsety / 10)
+    werewolf.watchzone = pygame.Rect(werewolf.x - 500, werewolf.y - 500, 1000, 1000)
     werewolf.selected_sprite = selection_sprite[0]
     werewolf.selected_sprite_offsetx = 2644/21
     werewolf.selected_sprite_offsety = 60

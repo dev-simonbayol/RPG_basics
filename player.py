@@ -11,6 +11,7 @@ class PlayerClass:
         self.y = y
         self.hitbox = 0
         self.colhitbox = None
+        self.watchzone = None
         self.hp = 100
         self.has_died = False
         self.target = None
@@ -30,6 +31,8 @@ class PlayerClass:
         self.old_x = x
         self.old_y = y
         self.is_attacking = False
+        self.attack_move = False
+        self.set_cursor_atk = False
     
         # Player sprite attributes
         self.current_sprite = None
@@ -81,6 +84,8 @@ class PlayerClass:
     def update_hitbox(self):
         self.hitbox = pygame.Rect(self.x - self.offsetx / 4.3, self.y - self.current_sprite.get_height() / 1.7, self.offsetx / 2, self.offsety / 1.6)
         self.colhitbox = pygame.Rect(self.x - self.offsetx / 14, self.y - self.current_sprite.get_height() / 14, self.offsetx / 5, self.offsety / 12)
+        self.watchzone = pygame.Rect(self.x - 350, self.y - 350, 700, 700)
+        
     
     def get_hitbox(self, view):
         hitbox = pygame.Rect(self.hitbox.x - view.x, self.hitbox.y - view.y, self.hitbox.width, self.hitbox.height)
@@ -92,6 +97,10 @@ class PlayerClass:
         return hitbox
 
 
+    def get_watchzone(self, view):
+        watchzone = pygame.Rect(self.x - 350 - view.x, self.y - 350 - view.y, 700, 700)
+        return watchzone
+
     def launch_attack(self):
         if self.facing == "left":
             self.current_sprite = pygame.transform.flip(self.attack, True, False)
@@ -100,6 +109,7 @@ class PlayerClass:
         self.is_attacking = True
         self.animation_speed = self.atk_speed / (self.current_sprite.get_width() / self.offsetx)
         self.animation_time = 0
+        self.animation_x = 0
         if self.target.hp <= 0:
             self.xp += self.target.xp_give
             self.stop()
@@ -208,6 +218,7 @@ class PlayerClass:
         self.target = None
         self.facing = "right"
         self.is_attacking = False
+        self.attack_move = False
     
     def check_attack(self):
         if self.target == None:
@@ -280,6 +291,20 @@ class PlayerClass:
         screen.blit(text, (300, screen.get_height() - 100))
         screen.blit(hp, (425, screen.get_height() - 100))
 
+
+    def look_for_targets(self, targets):
+        
+        if targets == None:
+            return
+        
+        for target in targets:
+            if self.watchzone.colliderect(target.hitbox) and target.hp > 0:
+                self.target = target
+                self.dx = target.x
+                self.dy = target.y
+                self.state = "run"
+                break
+
     # Function to take damage
     def take_damage(self, amount):
         if (self.hp != 0):
@@ -327,6 +352,7 @@ def init_warrior(screen):
     warrior.offsety = 128 * size_ratio
     warrior.hitbox = pygame.Rect(warrior.x - warrior.offsetx / 4.3, warrior.y - warrior.current_sprite.get_height() / 1.7, warrior.offsetx / 2, warrior.offsety / 1.6)
     warrior.colhitbox = pygame.Rect(warrior.x - warrior.offsetx / 14, warrior.y - warrior.current_sprite.get_height() / 14, warrior.offsetx / 5, warrior.offsety / 12)
+    warrior.watchzone = pygame.Rect(warrior.x - 350, warrior.y - 350, 700, 700)
     warrior.selected_sprite = selection_sprite[0]
     warrior.selected_sprite_offsetx = 2644/21
     warrior.selected_sprite_offsety = 60

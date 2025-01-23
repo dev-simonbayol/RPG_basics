@@ -8,6 +8,7 @@ from object_class_map_ressources import *
 from animation_managment import *
 from moving import *
 from game_manager import *
+from entitie_behavior import *
 
 # Initialize Pygame
 pygame.init()
@@ -28,6 +29,7 @@ while game_manager.running:
     print_map_chunk(game_manager)
     moving_managment(game_manager)
     animation_managment(game_manager)
+    entities_behavior(game_manager)
     # Update the display
     pygame.display.flip()
 

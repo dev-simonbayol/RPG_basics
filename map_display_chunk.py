@@ -173,10 +173,12 @@ def display_invisible_entities(game_manager):
         if (game_manager.larger_map_view.collidepoint(game_manager.player.x, game_manager.player.y)):
             pygame.draw.rect(game_manager.screen, (255, 0, 0), game_manager.player.get_hitbox(game_manager.map_view), 1)
             pygame.draw.rect(game_manager.screen, (0, 0, 255), game_manager.player.get_colhitbox(game_manager.map_view), 1)
+            pygame.draw.rect(game_manager.screen, (255, 0, 255), game_manager.player.get_watchzone(game_manager.map_view), 1)
         
         for mob in game_manager.mobs:
             pygame.draw.rect(game_manager.screen, (255, 0, 0), mob.get_hitbox(game_manager.map_view), 1)
             pygame.draw.rect(game_manager.screen, (0, 0, 255), mob.get_colhitbox(game_manager.map_view), 1)
+            pygame.draw.rect(game_manager.screen, (255, 0, 255), mob.get_watchzone(game_manager.map_view), 1)
 
 
 def display_animations_chunk(game_manager):

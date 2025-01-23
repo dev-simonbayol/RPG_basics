@@ -18,12 +18,6 @@ def right_click_actions (player, view, mobs):
             player.check_facing()
             player.init_movement()
             player.target = None
-        for mob in mobs:
-            if mob.is_selected and mob.has_died != True:
-                mob.dx = pygame.mouse.get_pos()[0] + view.x
-                mob.dy = pygame.mouse.get_pos()[1] + view.y
-                mob.check_facing()
-                mob.init_movement()
         cd_mouse3 = 0
 
 
@@ -32,29 +26,32 @@ def delete_animation_right_click(animations_list, player):
     for animation in animations_list: # delete existent click animation
         if animation.type == "rclick":
             animations_list.remove(animation)
+    if player.attack_move:
+        player.attack_move = False
+        player.is_attacking = False
 
 
-def trigger_attack(gm, mob):
-    global cd_mouse3
+def trigger_attack(entitie1, entiti2):
 
-    gm.player.dx = mob.x
-    gm.player.dy = mob.y
-    gm.player.check_facing()
-    gm.player.init_movement()
-    gm.player.target = mob
-    cd_mouse3 = -25
+    entitie1.dx = entiti2.x
+    entitie1.dy = entiti2.y
+    entitie1.check_facing()
+    entitie1.init_movement()
+    entitie1.target = entiti2
     
 
 def right_click_released(game_manager, mouse_pos):
     
+    global cd_mouse3
     if game_manager.player.is_selected == False or game_manager.player.has_died == True:
-        return 
+        return
     
     mob_n = 0
     for mob in game_manager.mobs:
         if mob.hitbox.collidepoint(mouse_pos):
             if mob.hp > 0:
-                trigger_attack(game_manager, mob)
+                trigger_attack(game_manager.player, mob)
+                cd_mouse3 = -25
             return
         mob_n += 1
     
@@ -76,6 +73,9 @@ def left_click_pressed (game_manager):
         game_manager.minimap_clicked = True
         game_manager.user_interactions.saved_x = mouse_pos[0]
         game_manager.user_interactions.saved_y = mouse_pos[1]
+        return
+    
+    if game_manager.player.set_cursor_atk:
         return
     
     new_area = pygame.Rect(mouse_pos[0], mouse_pos[1], 5, 5)
@@ -202,6 +202,17 @@ def move_view_from_minimap(gm):
     gm.disp_chunks = get_chunk_to_display(gm)
 
 
+def move_and_attack(gm):
+    if gm.player.has_died:
+        return
+
+    gm.player.dx = pygame.mouse.get_pos()[0] + gm.map_view.x
+    gm.player.dy = pygame.mouse.get_pos()[1] + gm.map_view.y
+    gm.player.check_facing()
+    gm.player.init_movement()
+    gm.player.target = None
+    gm.player.attack_move = True
+
 
 def manage_keys_input (game_manager):
     keys = pygame.key.get_pressed()
@@ -221,12 +232,19 @@ def manage_keys_input (game_manager):
             if event.button == pygame.BUTTON_RIGHT:
                 right_click_released(game_manager, pygame.mouse.get_pos())
             if event.button == pygame.BUTTON_LEFT:
-                get_selected_obj_in_area(game_manager)
-                game_manager.user_interactions.click = False
-                game_manager.user_interactions.area = None
+                if game_manager.player.is_selected and game_manager.player.set_cursor_atk:
+                    move_and_attack(game_manager)
+                    game_manager.player.set_cursor_atk = False
+                else :
+                    get_selected_obj_in_area(game_manager)
+                    game_manager.user_interactions.click = False
+                    game_manager.user_interactions.area = None
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_u:
                 game_manager.user_interactions.draw_invisible_area = not game_manager.user_interactions.draw_invisible_area
+            if event.key == pygame.K_a:
+                if game_manager.player.is_selected and game_manager.user_interactions.click != True:
+                    game_manager.player.set_cursor_atk = True
     
     # keys input handling (repeated pressed events)
     move_view(game_manager, keys)
@@ -235,5 +253,5 @@ def manage_keys_input (game_manager):
     if mouse[pygame.BUTTON_RIGHT - 1]:
         right_click_actions(game_manager.player, game_manager.map_view, game_manager.mobs)
     if mouse[pygame.BUTTON_LEFT - 1]:
-        if (left_click_actions(game_manager.user_interactions, game_manager.minimap_clicked)) == "minimap_clicked":
+        if (left_click_actions(game_manager.user_interactions, game_manager.minimap_clicked)) == "minimap_clicked" and game_manager.player.attack_move == False:
             move_view_from_minimap(game_manager)
